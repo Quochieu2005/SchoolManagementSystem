@@ -47,7 +47,8 @@
                                 <select name="gender" class="form-control">
                                     <option value="">-- Select --</option>
                                     <option value="male" {{ request('gender') == 'male' ? 'selected' : '' }}>Male</option>
-                                    <option value="female" {{ request('gender') == 'female' ? 'selected' : '' }}>Female</option>
+                                    <option value="female" {{ request('gender') == 'female' ? 'selected' : '' }}>Female
+                                    </option>
                                 </select>
                             </div>
 
@@ -88,7 +89,7 @@
                                 <thead>
                                     <tr>
                                         <th>Full Name</th>
-                                        @if(Auth::user()->is_admin == 1 || Auth::user()->is_admin == 2)
+                                        @if (Auth::user()->is_admin == 1 || Auth::user()->is_admin == 2)
                                             <th>School Name</th>
                                         @endif
                                         <th>Qualification</th>
@@ -110,9 +111,9 @@
                                             <td>
                                                 <strong>{{ $tl->name }} {{ $tl->last_name }}</strong>
                                             </td>
-                                            @if(Auth::user()->is_admin == 1 || Auth::user()->is_admin == 2)
+                                            @if (Auth::user()->is_admin == 1 || Auth::user()->is_admin == 2)
                                                 <td>
-                                                    @if(!empty($tl->getCreatedBy))
+                                                    @if (!empty($tl->getCreatedBy))
                                                         {{ $tl->getCreatedBy->name }}
                                                     @endif
                                                 </td>
@@ -135,7 +136,7 @@
                                                 {{ \Illuminate\Support\Str::limit($tl->address, 30, '...') }}
                                             </td>
                                             <td>
-                                                @if (auth()->user()->is_admin === 1 || auth()->user()->is_admin === 2 )
+                                                @if (auth()->user()->is_admin === 1 || auth()->user()->is_admin === 2)
                                                     <a href="{{ route('cpanel.teacher.toggleStatus', $tl->id) }}">
                                                         @if ($tl->status)
                                                             <span class="label label-success">Active</span>
@@ -174,11 +175,21 @@
 
                                             {{-- Actions --}}
                                             <td>
+                                                {{-- Edit --}}
                                                 <a href="{{ route('cpanel.teacher.edit', $tl->slug) }}"
                                                     class="btn btn-default btn-rounded btn-sm" title="Edit">
                                                     <span class="fa fa-pencil"></span>
                                                 </a>
+                                                
+                                                {{-- Assign Subject --}}
+                                                @if(Auth::user()->is_admin === 1 || Auth::user()->is_admin === 2 || Auth::user()->is_admin === 3 || Auth::user()->is_admin === 4 )
+                                                    <a href="{{ route('teacher.assign.subject', $tl->slug) }}"
+                                                        class="btn btn-info btn-rounded btn-sm" title="Phân công giảng dạy">
+                                                        <span class="fa fa-book"></span>
+                                                    </a>
+                                                @endif
 
+                                                {{-- Delete --}}
                                                 <form action="{{ route('cpanel.teacher.delete', $tl->slug) }}"
                                                     method="POST" style="display:inline-block"
                                                     onsubmit="return confirm('Are you sure you want to delete this teacher?');">

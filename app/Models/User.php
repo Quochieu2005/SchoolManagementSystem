@@ -59,6 +59,21 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function getCreatedBy()
     {
-        return $this->belongsTo(User::class , 'created_by_id');
+        return $this->belongsTo(User::class, 'created_by_id');
+    }
+
+    public function subjects()
+    {
+        return $this->belongsToMany(
+            SubjectModel::class,
+            'teacher_subjects',
+            'teacher_id',
+            'subject_id'
+        )->withPivot('class_id')->withTimestamps();
+    }
+
+    public function teachingAssignments()
+    {
+        return $this->hasMany(TeacherSubject::class, 'teacher_id');
     }
 }

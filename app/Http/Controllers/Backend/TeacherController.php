@@ -5,6 +5,9 @@ namespace App\Http\Controllers\Backend;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Logs;
+use App\Models\TeacherSubject;
+use App\Models\SubjectModel;
+use App\Models\SchoolClass;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -50,13 +53,13 @@ class TeacherController extends Controller
         return view('backend.teacher.index', compact('meta_title', 'teacherList'));
     }
     public function create_teacher()
-    {   
-        $teachers = User::where('is_admin' , 3)
-                        ->where('status' , 1)
-                        ->where('trang_thai' , 1)
-                        ->get();
+    {
+        $teachers = User::where('is_admin', 3)
+            ->where('status', 1)
+            ->where('trang_thai', 1)
+            ->get();
         $meta_title = "Teacher Create";
-        return view('backend.teacher.create', compact('meta_title' , 'teachers'));
+        return view('backend.teacher.create', compact('meta_title', 'teachers'));
     }
 
     public function store(Request $request)
@@ -114,14 +117,11 @@ class TeacherController extends Controller
             $user->status             = $request->status;
             $user->is_admin           = 5;
 
-            if(Auth::user()->is_admin == 1 || Auth::user()->is_admin == 2)
-                {
-                    $user->created_by_id = $request->school_id;
-                }
-            else
-                {
-                    $user->created_by_id = Auth::id();
-                }
+            if (Auth::user()->is_admin == 1 || Auth::user()->is_admin == 2) {
+                $user->created_by_id = $request->school_id;
+            } else {
+                $user->created_by_id = Auth::id();
+            }
 
             $user->save();
 
@@ -172,7 +172,7 @@ class TeacherController extends Controller
 
     public function update(Request $request, User $teacher)
     {
-        if(Auth::user()->is_admin == 1 || Auth::user()->is_admin == 2) {
+        if (Auth::user()->is_admin == 1 || Auth::user()->is_admin == 2) {
             $request->validate([
                 'school_id' => 'required|exists:users,id',
             ]);
@@ -234,9 +234,9 @@ class TeacherController extends Controller
             $teacher->note               = $request->note;
             $teacher->status             = $request->status;
 
-            if(Auth::user()->is_admin == 1 || Auth::user()->is_admin == 2) {
-                    $teacher->created_by_id = $request->school_id;
-                }
+            if (Auth::user()->is_admin == 1 || Auth::user()->is_admin == 2) {
+                $teacher->created_by_id = $request->school_id;
+            }
 
             if ($request->filled('password')) {
                 $teacher->password = bcrypt($request->password);
@@ -297,5 +297,49 @@ class TeacherController extends Controller
         return redirect()
             ->route('cpanel.teacher')
             ->with('success', 'Giáo viên đã được xóa thành công.');
+    }
+
+    // Phân công môn cho giáo viên
+    public function assignSubjectForm(User $teacher)
+    {
+        abort_if($teacher->is_admin != 5, 404);
+
+        $classes  = SchoolClass::where('status', 1)->get();
+        $subjects = SubjectModel::where('status', 1)->get();
+
+        $assigned = TeacherSubject::where('teacher_id', $teacher->id)->get();
+
+        $meta_title = "Teacher Assignments";
+
+        return view(
+            'backend.teacher.assign-subject',
+            compact('teacher', 'classes', 'subjects', 'assigned' , 'meta_title')
+        );
+    }
+
+    // Lưu phân công giảng dạy
+    public function assignSubjectStore(Request $request, User $teacher)
+    {
+        abort_if($teacher->is_admin != 5, 404);
+
+        $request->validate([
+            'class_id'   => 'required|exists:class,id',
+            'subject_id' => 'required|exists:subjects,id',
+        ]);
+
+        TeacherSubject::firstOrCreate([
+            'teacher_id' => $teacher->id,
+            'class_id'   => $request->class_id,
+            'subject_id' => $request->subject_id,
+        ]);
+
+        return back()->with('success', 'Đã phân công môn cho giáo viên');
+    }
+
+    public function assignSubjectDelete(TeacherSubject $assign)
+    {
+        $assign->delete();
+
+        return back()->with('success', 'Đã xóa phân công giảng dạy');
     }
 }

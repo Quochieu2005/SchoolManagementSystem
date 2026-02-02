@@ -30,8 +30,8 @@
                         </div>
 
                         <div class="panel-body">
-                            
-                            @if(Auth::user()->is_admin == 1 || Auth::user()->is_admin == 2)
+
+                            @if (Auth::user()->is_admin == 1 || Auth::user()->is_admin == 2)
                                 <div class="form-group @error('school_id') has-error @enderror">
                                     <label class="col-md-3 control-label">
                                         School Name <span class="required">*</span>
@@ -92,7 +92,8 @@
                                 <div class="col-md-6">
                                     <select name="gender" class="form-control">
                                         <option value="">-- Select Gender --</option>
-                                        <option value="male" {{ old('gender') == 'male' ? 'selected' : '' }}>Male</option>
+                                        <option value="male" {{ old('gender') == 'male' ? 'selected' : '' }}>Male
+                                        </option>
                                         <option value="female" {{ old('gender') == 'female' ? 'selected' : '' }}>Female
                                         </option>
                                     </select>

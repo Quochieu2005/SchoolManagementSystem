@@ -3,7 +3,7 @@
 @section('content')
     <!-- START BREADCRUMB -->
     <ul class="breadcrumb">
-        <li><a href="{{ route('cpanel.school') }}">Home</a></li>
+        <li><a href="{{ route('cpanel.admin') }}">Home</a></li>
         <li class="active">Edit</li>
     </ul>
     <!-- END BREADCRUMB -->
