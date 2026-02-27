@@ -313,21 +313,31 @@ class TeacherController extends Controller
 
         return view(
             'backend.teacher.assign-subject',
-            compact('teacher', 'classes', 'subjects', 'assigned' , 'meta_title')
+            compact('teacher', 'classes', 'subjects', 'assigned', 'meta_title')
         );
     }
 
     // Lưu phân công giảng dạy
     public function assignSubjectStore(Request $request, User $teacher)
     {
-        abort_if($teacher->is_admin != 5, 404);
+        abort_if($teacher->is_admin != 5, 404); // 5 = Teacher
 
         $request->validate([
             'class_id'   => 'required|exists:class,id',
             'subject_id' => 'required|exists:subjects,id',
         ]);
 
-        TeacherSubject::firstOrCreate([
+        $exists = TeacherSubject::where([
+            'teacher_id' => $teacher->id,
+            'class_id'   => $request->class_id,
+            'subject_id' => $request->subject_id,
+        ])->exists();
+
+        if ($exists) {
+            return back()->with('error', 'Giáo viên đã được phân công môn này cho lớp này');
+        }
+
+        TeacherSubject::create([
             'teacher_id' => $teacher->id,
             'class_id'   => $request->class_id,
             'subject_id' => $request->subject_id,

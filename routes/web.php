@@ -9,6 +9,7 @@ use App\Http\Controllers\Backend\DashboardController;
 use App\Http\Controllers\Backend\SchoolController;
 use App\Http\Controllers\Backend\AdminController;
 use App\Http\Controllers\Backend\ClassController;
+use App\Http\Controllers\Backend\StudentController;
 use App\Http\Controllers\Backend\TeacherController;
 
 // Login
@@ -84,8 +85,14 @@ Route::group(['middleware' => 'school'], function(){
     Route::post('/cpanel/teacher/{teacher:slug}/assign-subject', [TeacherController::class, 'assignSubjectStore'])->name('teacher.assign.subject.store');
     Route::delete('/cpanel/teacher/assign-subject/{assign}',[TeacherController::class, 'assignSubjectDelete'])->name('cpanel.teacher.assign.delete');
 
-
-
+    // Student
+    Route::get('/cpanel/student', [StudentController::class , 'student_list'])->name('cpanel.student');
+    Route::get('/cpanel/student/add' , [StudentController::class , 'create_student'])->name('cpanel.student.add');
+    Route::post('/cpanel/student/store' , [StudentController::class , 'store'])->name('cpanel.student.store');
+    Route::get('cpanel/student/{student:slug}/edit' , [StudentController::class , 'edit_student'])->name('cpanel.student.edit');
+    Route::put('/cpanel/student/{student:slug}' , [StudentController::class , 'update'])->name('cpanel.student.update');
+    Route::delete('/cpanel/student/{student:slug}' , [StudentController::class , 'destroy'])->name('cpanel.student.delete');
+    Route::get('cpanel/ajax/classes-by-school/{school}',[StudentController::class, 'getClassesBySchool'])->name('ajax.classes.by.school');
     // Class
     Route::get('/cpanel/class' , [ClassController::class , 'class_list'])->name('cpanel.class');
     Route::get('/cpanel/class/add' , [ClassController::class , 'class_create'])->name('cpanel.class.add');

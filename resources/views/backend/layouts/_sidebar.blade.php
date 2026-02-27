@@ -172,8 +172,14 @@
                         <div class="profile-data-role">Admin</div>
                     @elseif(Auth::user()->is_admin == 3)
                         <div class="profile-data-role">School</div>
+                    @elseif(Auth::user()->is_admin == 4)
+                        <div class="profile-data-role">School Admin</div>
                     @elseif(Auth::user()->is_admin == 5)
                         <div class="profile-data-role">Teacher</div>
+                    @elseif(Auth::user()->is_admin == 6)
+                        <div class="profile-data-role">Student</div>
+                    @elseif(Auth::user()->is_admin == 7)
+                        <div class="profile-data-role">Parent</div>
                     @else
                         <div class="profile-data-role">User</div>
                     @endif
@@ -210,6 +216,10 @@
             
             <li class="{{ Request::segment(2) == 'teacher' ? 'active' : '' }}">    
                 <a href="{{ route('cpanel.teacher') }}"><span class="fa fa-user"></span> <span class="xn-text">Teacher</span></a>
+            </li>
+
+            <li class="{{ Request::segment(2) == 'student' ? 'active' : '' }}">    
+                <a href="{{ route('cpanel.student') }}"><span class="fa fa-user"></span> <span class="xn-text">Student</span></a>
             </li>
         @endif
 
