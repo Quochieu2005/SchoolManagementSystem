@@ -25,8 +25,14 @@ class TeacherController extends Controller
     }
     public function teacher_list(Request $request)
     {
-        $query = User::where('is_admin', 5);
+        $query = User::where('is_admin', 5); // Teacher
 
+        // 🔒 LỌC THEO TRƯỜNG
+        if (in_array(Auth::user()->is_admin, [3, 4])) {
+            $query->where('created_by_id', Auth::id());
+        }
+
+        // ===== SEARCH =====
         if ($request->filled('name')) {
             $query->where(function ($q) use ($request) {
                 $q->where('name', 'like', '%' . $request->name . '%')
@@ -39,19 +45,22 @@ class TeacherController extends Controller
         }
 
         if ($request->filled('gender')) {
-            $query->where('gender', 'like', '%' . $request->gender . '%');
+            $query->where('gender', $request->gender);
         }
 
         if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
+
         $teacherList = $query
             ->orderBy('id', 'desc')
             ->paginate(10)
             ->appends($request->query());
+
         $meta_title = "Teacher List";
         return view('backend.teacher.index', compact('meta_title', 'teacherList'));
     }
+
     public function create_teacher()
     {
         $teachers = User::where('is_admin', 3)
@@ -304,8 +313,17 @@ class TeacherController extends Controller
     {
         abort_if($teacher->is_admin != 5, 404);
 
-        $classes  = SchoolClass::where('status', 1)->get();
-        $subjects = SubjectModel::where('status', 1)->get();
+        if (in_array(Auth::user()->is_admin, [3, 4])) {
+            abort_if($teacher->created_by_id !== Auth::id(), 403);
+        }
+
+        $classes = SchoolClass::where('status', 1)
+            ->where('created_by_id', $teacher->created_by_id)
+            ->get();
+
+        $subjects = SubjectModel::where('status', 1)
+            ->where('created_by_id', $teacher->created_by_id)
+            ->get();
 
         $assigned = TeacherSubject::where('teacher_id', $teacher->id)->get();
 
@@ -313,7 +331,7 @@ class TeacherController extends Controller
 
         return view(
             'backend.teacher.assign-subject',
-            compact('teacher', 'classes', 'subjects', 'assigned', 'meta_title')
+            compact('teacher', 'classes', 'subjects', 'assigned' , 'meta_title')
         );
     }
 

@@ -221,6 +221,10 @@
             <li class="{{ Request::segment(2) == 'student' ? 'active' : '' }}">    
                 <a href="{{ route('cpanel.student') }}"><span class="fa fa-user"></span> <span class="xn-text">Student</span></a>
             </li>
+
+            <li class="{{ Request::segment(2) == 'parent' ? 'active' : '' }}">    
+                <a href="{{ route('cpanel.parent') }}"><span class="fa fa-user"></span> <span class="xn-text">Parent</span></a>
+            </li>
         @endif
 
         @if(Auth::user()->is_admin == 3)

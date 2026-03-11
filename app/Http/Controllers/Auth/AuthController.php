@@ -20,7 +20,22 @@ class AuthController extends Controller
         // dd($request->all());
         if(Auth::attempt(['email' => $request->email , 'password' => $request->password , 'trang_thai' => 1] , true))
         {
-            return redirect('cpanel/dashboard');
+            if(Auth::user()->is_admin === 5)
+                {
+                    return redirect('teacher/dashboard');
+                }
+            elseif(Auth::user()->is_admin === 6)
+                {
+                    return redirect('student/dashboard');
+                }
+            elseif(Auth::user()->is_admin === 7)
+                {
+                    return redirect('parent/dashboard');
+                }
+            else
+                {
+                    return redirect('cpanel/dashboard');
+                }
         }
         else
         {

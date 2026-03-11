@@ -23,8 +23,14 @@ class StudentController extends Controller
     }
     public function student_list(Request $request)
     {
-        $query = User::where('is_admin', 6);
+        $query = User::where('is_admin', 6); // Student
 
+        // 🔒 LỌC THEO TRƯỜNG
+        if (in_array(Auth::user()->is_admin, [3, 4])) {
+            $query->where('created_by_id', Auth::id());
+        }
+
+        // ===== SEARCH =====
         if ($request->filled('name')) {
             $query->where(function ($q) use ($request) {
                 $q->where('name', 'like', '%' . $request->name . '%')
@@ -37,12 +43,13 @@ class StudentController extends Controller
         }
 
         if ($request->filled('gender')) {
-            $query->where('gender', 'like', '%' . $request->gender . '%');
+            $query->where('gender', $request->gender);
         }
 
         if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
+
         $studentList = $query
             ->orderBy('id', 'desc')
             ->paginate(10)
@@ -54,16 +61,33 @@ class StudentController extends Controller
 
     public function create_student()
     {
-        $teachers = User::where('is_admin', 3)
-            ->where('status', 1)
-            ->where('trang_thai', 1)
-            ->get();
-
         $meta_title = "Create Student";
+
+        // Nếu là Admin cấp cao
+        if (in_array(Auth::user()->is_admin, [1, 2])) {
+
+            $teachers = User::where('is_admin', 3)
+                ->where('status', 1)
+                ->where('trang_thai', 1)
+                ->get();
+
+            return view(
+                'backend.student.create',
+                compact('meta_title', 'teachers')
+            );
+        }
+
+        // Nếu là School (role = 3)
+        $schoolId = Auth::id();
+
+        $classes = SchoolClass::where('status', 1)
+            ->where('is_delete', 1)
+            ->where('created_by_id', $schoolId)
+            ->get();
 
         return view(
             'backend.student.create',
-            compact('meta_title', 'teachers')
+            compact('meta_title', 'classes')
         );
     }
 
@@ -83,7 +107,9 @@ class StudentController extends Controller
         // ===== Validate =====
         // dd($request->all());
         $request->validate([
-            'school_id'         => 'required|exists:users,id',
+            'school_id' => in_array(Auth::user()->is_admin, [1, 2])
+                ? 'required|exists:users,id'
+                : 'nullable',
             'name'              => 'required|string|max:255',
             'last_name'         => 'required|string|max:255',
             'slug'              => 'nullable|string|max:255',
@@ -102,15 +128,13 @@ class StudentController extends Controller
         ]);
 
         // ===== CHECK CLASS THUỘC SCHOOL =====
-        $classValid = SchoolClass::where('id', $request->class_id)
-            ->where('created_by_id', $request->school_id)
-            ->exists();
+        $schoolId = in_array(Auth::user()->is_admin, [1, 2])
+            ? $request->school_id
+            : Auth::id();
 
-        if (! $classValid) {
-            return back()
-                ->withInput()
-                ->withErrors(['class_id' => 'Class không thuộc trường đã chọn']);
-        }
+        $classValid = SchoolClass::where('id', $request->class_id)
+            ->where('created_by_id', $schoolId)
+            ->exists();
 
         try {
             // ===== Slug =====
@@ -143,7 +167,10 @@ class StudentController extends Controller
             $user->password          = bcrypt($request->password);
             $user->status            = $request->status;
             $user->is_admin          = 6;
-            $user->created_by_id     = $request->school_id;
+            $user->created_by_id =
+                in_array(Auth::user()->is_admin, [1, 2])
+                ? $request->school_id
+                : Auth::id();
 
             $user->save();
 
@@ -243,15 +270,16 @@ class StudentController extends Controller
             'weight'            => 'nullable|string|max:20',
             'address'           => 'required|string|max:500',
             'permanent_address' => 'required|string|max:500',
-
-            // UPDATE → không bắt buộc password
             'password' => 'nullable|string|min:6',
-
             'status' => 'required|in:0,1',
         ]);
 
+        $schoolId = in_array(Auth::user()->is_admin, [1, 2])
+            ? $request->school_id
+            : Auth::id();
+
         $classValid = SchoolClass::where('id', $request->class_id)
-            ->where('created_by_id', $request->school_id)
+            ->where('created_by_id', $schoolId)
             ->exists();
 
         if (! $classValid) {

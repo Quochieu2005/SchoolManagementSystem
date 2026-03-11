@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Backend\ParentController;
 use App\Http\Controllers\Backend\SchoolAdminController;
 use App\Http\Controllers\Backend\SubjectController;
 use Illuminate\Support\Facades\Route;
@@ -30,7 +31,7 @@ Route::get('/reset-password/{token}', [ForgotPasswordController::class, 'showRes
 Route::post('/reset-password', [ForgotPasswordController::class, 'resetPassword'])
     ->name('password.update');
 
-    // BACKEND (CPANEL)
+// BACKEND (CPANEL)
 Route::middleware(['auth', 'common'])->group(function () {
 
     // Dashboard
@@ -41,7 +42,7 @@ Route::middleware(['auth', 'common'])->group(function () {
     });
 });
 
-Route::group(['middleware' => 'admin'], function(){
+Route::group(['middleware' => 'admin'], function () {
 
     // ADMIN
     Route::get('/cpanel/admin', [AdminController::class, 'admin_list'])->name('cpanel.admin');
@@ -59,55 +60,86 @@ Route::group(['middleware' => 'admin'], function(){
     Route::put('/cpanel/school/{school:slug}', [SchoolController::class, 'update'])->name('cpanel.school.update');
     Route::get('/cpanel/school/{id}/toggle-status', [SchoolController::class, 'toggleStatus'])->name('cpanel.school.toggleStatus');
     Route::delete('/cpanel/school/{school:slug}', [SchoolController::class, 'destroy'])->name('cpanel.school.delete');
+});
+
+Route::group(['middleware' => 'school'], function () {
+
+    Route::get('/cpanel/dashboard', [DashboardController::class, 'dashboard'])->name('cpanel.dashboard');
+
+    // School Admin
+    Route::get('/cpanel/school_admin', [SchoolAdminController::class, 'admin_school_list'])->name('cpanel.school.admin');
+    Route::get('/cpanel/school_admin/add', [SchoolAdminController::class, 'school_admin_create'])->name('cpanel.school.admin.add');
+    Route::post('/cpanel/school_admin/store', [SchoolAdminController::class, 'school_admin_store'])->name('cpanel.school.admin.store');
+    Route::get('/cpanel/school_admin/{user:slug}/edit', [SchoolAdminController::class, 'school_admin_edit'])->name('cpanel.school.admin.edit');
+    Route::put('/cpanel/school_admin/{user:slug}', [SchoolAdminController::class, 'school_admin_update'])->name('cpanel.school.admin.update');
+    Route::get('/cpanel/school_admin/{id}/toggle-status', [SchoolAdminController::class, 'toggleStatus'])->name('cpanel.school.admin.toggleStatus');
+    Route::delete('cpanel/school_admin/{user:slug}', [SchoolAdminController::class, 'school_admin_delete'])->name('cpanel.school.admin.delete');
+
+    // Teacher
+    Route::get('/cpanel/teacher', [TeacherController::class, 'teacher_list'])->name('cpanel.teacher');
+    Route::get('/cpanel/teacher/add', [TeacherController::class, 'create_teacher'])->name('cpanel.teacher.add');
+    Route::post('/cpanel/teacher/store', [TeacherController::class, 'store'])->name('cpanel.teacher.store');
+    Route::get('cpanel/teacher/{teacher:slug}/edit', [TeacherController::class, 'edit'])->name('cpanel.teacher.edit');
+    Route::put('/cpanel/teacher/{teacher:slug}', [TeacherController::class, 'update'])->name('cpanel.teacher.update');
+    Route::get('/cpanel/teacher/{id}/toggle-status', [TeacherController::class, 'toggleStatus'])->name('cpanel.teacher.toggleStatus');
+    Route::delete('/cpanel/teacher/{teacher:slug}', [TeacherController::class, 'destroy'])->name('cpanel.teacher.delete');
+    Route::get('/cpanel/teacher/{teacher:slug}/assign-subject', [TeacherController::class, 'assignSubjectForm'])->name('teacher.assign.subject');
+    Route::post('/cpanel/teacher/{teacher:slug}/assign-subject', [TeacherController::class, 'assignSubjectStore'])->name('teacher.assign.subject.store');
+    Route::delete('/cpanel/teacher/assign-subject/{assign}', [TeacherController::class, 'assignSubjectDelete'])->name('cpanel.teacher.assign.delete');
+
+    // Student
+    Route::get('/cpanel/student', [StudentController::class, 'student_list'])->name('cpanel.student');
+    Route::get('/cpanel/student/add', [StudentController::class, 'create_student'])->name('cpanel.student.add');
+    Route::post('/cpanel/student/store', [StudentController::class, 'store'])->name('cpanel.student.store');
+    Route::get('cpanel/student/{student:slug}/edit', [StudentController::class, 'edit_student'])->name('cpanel.student.edit');
+    Route::put('/cpanel/student/{student:slug}', [StudentController::class, 'update'])->name('cpanel.student.update');
+    Route::delete('/cpanel/student/{student:slug}', [StudentController::class, 'destroy'])->name('cpanel.student.delete');
+    Route::get('cpanel/ajax/classes-by-school/{school}', [StudentController::class, 'getClassesBySchool'])->name('ajax.classes.by.school');
+
+    // Parent
+    Route::get('/cpanel/parent', [ParentController::class, 'parent_list'])->name('cpanel.parent');
+    Route::get('/cpanel/parent/add', [ParentController::class, 'parent_create'])->name('cpanel.parent.add');
+    Route::post('/cpanel/parent/store', [ParentController::class, 'store'])->name('cpanel.parent.store');
+    Route::get('/cpanel/parent/{user:slug}/edit', [ParentController::class, 'parent_edit'])->name('cpanel.parent.edit');
+    Route::put('/cpanel/parent/{user:slug}', [ParentController::class, 'update'])->name('cpanel.parent.update');
+    Route::delete('/cpanel/parent/{user:slug}', [ParentController::class, 'destroy'])->name('cpanel.parent.delete');
+    Route::get('cpanel/parent/my-student/{user:slug}', [ParentController::class, 'my_student'])->name('cpanel.parent.my.student');
+    Route::get( '/cpanel/parent/{parent_id}/add-student/{user:slug}',[ParentController::class , 'add_student'])->name('cpanel.parent.add.student');
+    Route::delete('cpanel/parent/my-student-delete/{user:slug}',[ParentController::class, 'my_student_delete'])->name('cpanel.parent.my.student.delete');    
+    
+    // Class
+    Route::get('/cpanel/class', [ClassController::class, 'class_list'])->name('cpanel.class');
+    Route::get('/cpanel/class/add', [ClassController::class, 'class_create'])->name('cpanel.class.add');
+    Route::post('/cpanel/class/store', [ClassController::class, 'store'])->name('cpanel.class.store');
+    Route::get('/cpanel/class/{class:slgu}/edit', [ClassController::class, 'edit_class'])->name('cpanel.class.edit');
+    Route::put('/cpanel/class/{class:slug}', [ClassController::class, 'update'])->name('cpanel.class.update');
+    Route::get('/cpanel/class/{id}/toggle-status', [ClassController::class, 'toggleStatus'])->name('cpanel.class.toggleStatus');
+    Route::delete('/cpanel/class/{class:slug}', [ClassController::class, 'destroy'])->name('cpanel.class.delete');
+
+    // Subject
+    Route::get('/cpanel/subject', [SubjectController::class, 'subject_list'])->name('cpanel.subject');
+    Route::get('/cpanel/subject/add', [SubjectController::class, 'subject_create'])->name('cpanel.subject.add');
+    Route::post('/cpanel/subject/store', [SubjectController::class, 'store'])->name('cpanel.subject.store');
+    Route::get('/cpanel/subject/{subject:slgu}/edit', [SubjectController::class, 'edit_subject'])->name('cpanel.subject.edit');
+    Route::put('/cpanel/subject/{subject:slug}', [SubjectController::class, 'update'])->name('cpanel.subject.update');
+    Route::get('/cpanel/subject/{id}/toggle-status', [SubjectController::class, 'toggleStatus'])->name('cpanel.subject.toggleStatus');
+    Route::delete('/cpanel/subject/{subject:slug}', [SubjectController::class, 'destroy'])->name('cpanel.subject.delete');
+});
+
+Route::group(['middleware' => 'teacher'], function () {
+
+    Route::get('/teacher/dashboard', [DashboardController::class, 'dashboard'])->name('cpanel.dashboard');
 
 });
 
-Route::group(['middleware' => 'school'], function(){
+Route::group(['middleware' => 'student'], function () {
 
-    // School Admin
-    Route::get('/cpanel/school_admin' , [SchoolAdminController::class , 'admin_school_list'])->name('cpanel.school.admin');
-    Route::get('/cpanel/school_admin/add' , [SchoolAdminController::class , 'school_admin_create'])->name('cpanel.school.admin.add');
-    Route::post('/cpanel/school_admin/store' , [SchoolAdminController::class , 'school_admin_store'])->name('cpanel.school.admin.store');
-    Route::get('/cpanel/school_admin/{user:slug}/edit' , [SchoolAdminController::class , 'school_admin_edit'])->name('cpanel.school.admin.edit');
-    Route::put('/cpanel/school_admin/{user:slug}' , [SchoolAdminController::class , 'school_admin_update'])->name('cpanel.school.admin.update');
-    Route::get('/cpanel/school_admin/{id}/toggle-status', [SchoolAdminController::class, 'toggleStatus'])->name('cpanel.school.admin.toggleStatus');
-    Route::delete('cpanel/school_admin/{user:slug}' , [SchoolAdminController::class , 'school_admin_delete'])->name('cpanel.school.admin.delete');
+    Route::get('/student/dashboard', [DashboardController::class, 'dashboard'])->name('cpanel.dashboard');
 
-    // Teacher
-    Route::get('/cpanel/teacher', [TeacherController::class , 'teacher_list'])->name('cpanel.teacher');
-    Route::get('/cpanel/teacher/add' , [TeacherController::class , 'create_teacher'])->name('cpanel.teacher.add');
-    Route::post('/cpanel/teacher/store' , [TeacherController::class , 'store'])->name('cpanel.teacher.store');
-    Route::get('cpanel/teacher/{teacher:slug}/edit' , [TeacherController::class , 'edit'])->name('cpanel.teacher.edit');
-    Route::put('/cpanel/teacher/{teacher:slug}' , [TeacherController::class , 'update'])->name('cpanel.teacher.update');
-    Route::get('/cpanel/teacher/{id}/toggle-status', [TeacherController::class, 'toggleStatus'])->name('cpanel.teacher.toggleStatus');
-    Route::delete('/cpanel/teacher/{teacher:slug}' , [TeacherController::class , 'destroy'])->name('cpanel.teacher.delete');
-    Route::get('/cpanel/teacher/{teacher:slug}/assign-subject', [TeacherController::class, 'assignSubjectForm'])->name('teacher.assign.subject');
-    Route::post('/cpanel/teacher/{teacher:slug}/assign-subject', [TeacherController::class, 'assignSubjectStore'])->name('teacher.assign.subject.store');
-    Route::delete('/cpanel/teacher/assign-subject/{assign}',[TeacherController::class, 'assignSubjectDelete'])->name('cpanel.teacher.assign.delete');
+});
 
-    // Student
-    Route::get('/cpanel/student', [StudentController::class , 'student_list'])->name('cpanel.student');
-    Route::get('/cpanel/student/add' , [StudentController::class , 'create_student'])->name('cpanel.student.add');
-    Route::post('/cpanel/student/store' , [StudentController::class , 'store'])->name('cpanel.student.store');
-    Route::get('cpanel/student/{student:slug}/edit' , [StudentController::class , 'edit_student'])->name('cpanel.student.edit');
-    Route::put('/cpanel/student/{student:slug}' , [StudentController::class , 'update'])->name('cpanel.student.update');
-    Route::delete('/cpanel/student/{student:slug}' , [StudentController::class , 'destroy'])->name('cpanel.student.delete');
-    Route::get('cpanel/ajax/classes-by-school/{school}',[StudentController::class, 'getClassesBySchool'])->name('ajax.classes.by.school');
-    // Class
-    Route::get('/cpanel/class' , [ClassController::class , 'class_list'])->name('cpanel.class');
-    Route::get('/cpanel/class/add' , [ClassController::class , 'class_create'])->name('cpanel.class.add');
-    Route::post('/cpanel/class/store' , [ClassController::class , 'store'])->name('cpanel.class.store');
-    Route::get('/cpanel/class/{class:slgu}/edit' , [ClassController::class , 'edit_class'])->name('cpanel.class.edit');
-    Route::put('/cpanel/class/{class:slug}' , [ClassController::class , 'update'])->name('cpanel.class.update');
-    Route::get('/cpanel/class/{id}/toggle-status', [ClassController::class, 'toggleStatus'])->name('cpanel.class.toggleStatus');
-    Route::delete('/cpanel/class/{class:slug}' , [ClassController::class , 'destroy'])->name('cpanel.class.delete');
+Route::group(['middleware' => 'parent'], function () {
 
-    // Subject
-    Route::get('/cpanel/subject' , [SubjectController::class , 'subject_list'])->name('cpanel.subject');
-    Route::get('/cpanel/subject/add' , [SubjectController::class , 'subject_create'])->name('cpanel.subject.add');
-    Route::post('/cpanel/subject/store' , [SubjectController::class , 'store'])->name('cpanel.subject.store');
-    Route::get('/cpanel/subject/{subject:slgu}/edit' , [SubjectController::class , 'edit_subject'])->name('cpanel.subject.edit');
-    Route::put('/cpanel/subject/{subject:slug}' , [SubjectController::class , 'update'])->name('cpanel.subject.update');
-    Route::get('/cpanel/subject/{id}/toggle-status', [SubjectController::class, 'toggleStatus'])->name('cpanel.subject.toggleStatus');
-    Route::delete('/cpanel/subject/{subject:slug}' , [SubjectController::class , 'destroy'])->name('cpanel.subject.delete');
+    Route::get('/parent/dashboard', [DashboardController::class, 'dashboard'])->name('cpanel.dashboard');
+
 });

@@ -20,8 +20,18 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     protected $fillable = [
         'name',
+        'last_name',
+        'slug',
         'email',
+        'gender',
+        'phone',
+        'occupation',
+        'permanent_address',
         'password',
+        'status',
+        'is_admin',
+        'created_by_id',
+        'profile_pic',
     ];
 
     /**
@@ -60,6 +70,11 @@ class User extends Authenticatable implements MustVerifyEmail
     public function getCreatedBy()
     {
         return $this->belongsTo(User::class, 'created_by_id');
+    }
+
+    public function getParent()
+    {
+        return $this->belongsTo(User::class, 'parent_id');
     }
 
     public function subjects()

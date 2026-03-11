@@ -20,13 +20,23 @@
         <div class="row">
             <div class="col-md-12">
 
-                <form class="form-horizontal" method="POST" action="{{ route('cpanel.student.store') }}"
+                @if ($errors->any())
+                    <div class="alert alert-danger">
+                        <ul>
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+                
+                <form class="form-horizontal" method="POST" action="{{ route('cpanel.parent.store') }}"
                     enctype="multipart/form-data">
                     @csrf
 
                     <div class="panel panel-default">
                         <div class="panel-heading">
-                            <h3 class="panel-title">Create Student</h3>
+                            <h3 class="panel-title">Create Parent</h3>
                         </div>
 
                         <div class="panel-body">
@@ -39,8 +49,8 @@
                                     <div class="col-md-6">
                                         <select name="school_id" class="form-control SchoolChange">
                                             <option value="">-- Select --</option>
-                                            @foreach ($teachers as $tl)
-                                                <option value="{{ $tl->id }}">{{ $tl->name }}</option>
+                                            @foreach ($schools as $sl)
+                                                <option value="{{ $sl->id }}">{{ $sl->name }}</option>
                                             @endforeach
                                         </select>
                                         @error('school_id')
@@ -84,68 +94,6 @@
                                 </div>
                             </div>
 
-                            {{-- Admission Number --}}
-                            <div class="form-group @error('admission_number') has-error @enderror">
-                                <label class="col-md-3 control-label">
-                                    Admission Number <span class="required">*</span>
-                                </label>
-                                <div class="col-md-6">
-                                    <div class="input-group">
-                                        <span class="input-group-addon"><span class="fa fa-id-card"></span></span>
-                                        <input type="text" name="admission_number" class="form-control"
-                                            value="{{ old('admission_number') }}">
-                                    </div>
-                                    @error('admission_number')
-                                        <span class="help-block">{{ $message }}</span>
-                                    @enderror
-                                </div>
-                            </div>
-
-                            {{-- Roll Number --}}
-                            <div class="form-group @error('roll_number') has-error @enderror">
-                                <label class="col-md-3 control-label">
-                                    Roll Number <span class="required">*</span>
-                                </label>
-                                <div class="col-md-6">
-                                    <div class="input-group">
-                                        <span class="input-group-addon"><span class="fa fa-sort-numeric-asc"></span></span>
-                                        <input type="text" name="roll_number" class="form-control"
-                                            value="{{ old('roll_number') }}">
-                                    </div>
-                                    @error('roll_number')
-                                        <span class="help-block">{{ $message }}</span>
-                                    @enderror
-                                </div>
-                            </div>
-
-                            {{-- Class --}}
-                            <div class="form-group @error('class_id') has-error @enderror">
-                                <label class="col-md-3 control-label">
-                                    Class <span class="required">*</span>
-                                </label>
-                                <div class="col-md-6">
-
-                                    @if (in_array(Auth::user()->is_admin, [1, 2]))
-                                        <select name="class_id" id="class_id" class="form-control">
-                                            <option value="">-- Select Class --</option>
-                                        </select>
-                                    @else
-                                        <select name="class_id" class="form-control">
-                                            <option value="">-- Select Class --</option>
-                                            @foreach ($classes as $cls)
-                                                <option value="{{ $cls->id }}">
-                                                    {{ $cls->name }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                    @endif
-
-                                    @error('class_id')
-                                        <span class="help-block">{{ $message }}</span>
-                                    @enderror
-                                </div>
-                            </div>
-
                             {{-- Gender --}}
                             <div class="form-group @error('gender') has-error @enderror">
                                 <label class="col-md-3 control-label">
@@ -160,23 +108,6 @@
                                         </option>
                                     </select>
                                     @error('gender')
-                                        <span class="help-block">{{ $message }}</span>
-                                    @enderror
-                                </div>
-                            </div>
-
-                            {{-- Date of Birth --}}
-                            <div class="form-group @error('date_of_birth') has-error @enderror">
-                                <label class="col-md-3 control-label">
-                                    Date of Birth <span class="required">*</span>
-                                </label>
-                                <div class="col-md-6">
-                                    <div class="input-group">
-                                        <span class="input-group-addon"><span class="fa fa-calendar"></span></span>
-                                        <input type="date" name="date_of_birth" class="form-control"
-                                            value="{{ old('date_of_birth') }}">
-                                    </div>
-                                    @error('date_of_birth')
                                         <span class="help-block">{{ $message }}</span>
                                     @enderror
                                 </div>
@@ -199,44 +130,10 @@
                                 </div>
                             </div>
 
-                            {{-- Caste --}}
-                            <div class="form-group @error('caste') has-error @enderror">
-                                <label class="col-md-3 control-label">
-                                    Caste
-                                </label>
-                                <div class="col-md-6">
-                                    <div class="input-group">
-                                        <span class="input-group-addon"><span class="fa fa-users"></span></span>
-                                        <input type="text" name="caste" class="form-control"
-                                            value="{{ old('caste') }}">
-                                    </div>
-                                    @error('caste')
-                                        <span class="help-block">{{ $message }}</span>
-                                    @enderror
-                                </div>
-                            </div>
-
-                            {{-- Religion --}}
-                            <div class="form-group @error('religion') has-error @enderror">
-                                <label class="col-md-3 control-label">
-                                    Religion
-                                </label>
-                                <div class="col-md-6">
-                                    <div class="input-group">
-                                        <span class="input-group-addon"><span class="fa fa-pray"></span></span>
-                                        <input type="text" name="religion" class="form-control"
-                                            value="{{ old('religion') }}">
-                                    </div>
-                                    @error('religion')
-                                        <span class="help-block">{{ $message }}</span>
-                                    @enderror
-                                </div>
-                            </div>
-
                             {{-- Mobile Number --}}
                             <div class="form-group @error('phone') has-error @enderror">
                                 <label class="col-md-3 control-label">
-                                    Mobile Number
+                                    Mobile Number <span class="required">*</span>
                                 </label>
                                 <div class="col-md-6">
                                     <div class="input-group">
@@ -250,95 +147,24 @@
                                 </div>
                             </div>
 
-                            {{-- Admission Date --}}
-                            <div class="form-group @error('admission_date') has-error @enderror">
+                            {{-- Occupation --}}
+                            <div class="form-group @error('occupation') has-error @enderror">
                                 <label class="col-md-3 control-label">
-                                    Admission Date <span class="required">*</span>
+                                    Occupation <span class="required">*</span>
                                 </label>
                                 <div class="col-md-6">
-                                    <div class="input-group">
-                                        <span class="input-group-addon"><span
-                                                class="fa fa-calendar-check-o"></span></span>
-                                        <input type="date" name="admission_date" class="form-control"
-                                            value="{{ old('admission_date') }}">
-                                    </div>
-                                    @error('admission_date')
+                                    <input type="text" name="occupation" class="form-control"
+                                        value="{{ old('occupation') }}">
+                                    @error('occupation')
                                         <span class="help-block">{{ $message }}</span>
                                     @enderror
                                 </div>
                             </div>
 
-                            {{-- Blood Group --}}
-                            <div class="form-group @error('blood_group') has-error @enderror">
-                                <label class="col-md-3 control-label">
-                                    Blood Group
-                                </label>
-                                <div class="col-md-6">
-                                    <div class="input-group">
-                                        <span class="input-group-addon"><span class="fa fa-tint"></span></span>
-                                        <input type="text" name="blood_group" class="form-control"
-                                            value="{{ old('blood_group') }}">
-                                    </div>
-                                    @error('blood_group')
-                                        <span class="help-block">{{ $message }}</span>
-                                    @enderror
-                                </div>
-                            </div>
-
-                            {{-- Height --}}
-                            <div class="form-group @error('height') has-error @enderror">
-                                <label class="col-md-3 control-label">
-                                    Height
-                                </label>
-                                <div class="col-md-6">
-                                    <div class="input-group">
-                                        <span class="input-group-addon"><span class="fa fa-arrows-v"></span></span>
-                                        <input type="text" name="height" class="form-control"
-                                            value="{{ old('height') }}">
-                                    </div>
-                                    @error('height')
-                                        <span class="help-block">{{ $message }}</span>
-                                    @enderror
-                                </div>
-                            </div>
-
-                            {{-- Weight --}}
-                            <div class="form-group @error('weight') has-error @enderror">
-                                <label class="col-md-3 control-label">
-                                    Weight
-                                </label>
-                                <div class="col-md-6">
-                                    <div class="input-group">
-                                        <span class="input-group-addon"><span class="fa fa-balance-scale"></span></span>
-                                        <input type="text" name="weight" class="form-control"
-                                            value="{{ old('weight') }}">
-                                    </div>
-                                    @error('weight')
-                                        <span class="help-block">{{ $message }}</span>
-                                    @enderror
-                                </div>
-                            </div>
-
-                            {{-- Current Address --}}
-                            <div class="form-group @error('address') has-error @enderror">
-                                <label class="col-md-3 control-label">
-                                    Current Address <span class="required">*</span>
-                                </label>
-                                <div class="col-md-6">
-                                    <div class="input-group">
-                                        <span class="input-group-addon"><span class="fa fa-home"></span></span>
-                                        <textarea name="address" class="form-control" rows="3">{{ old('address') }}</textarea>
-                                    </div>
-                                    @error('address')
-                                        <span class="help-block">{{ $message }}</span>
-                                    @enderror
-                                </div>
-                            </div>
-
-                            {{-- Permanent Address --}}
+                            {{--  Address --}}
                             <div class="form-group @error('permanent_address') has-error @enderror">
                                 <label class="col-md-3 control-label">
-                                    Permanent Address <span class="required">*</span>
+                                    Address <span class="required">*</span>
                                 </label>
                                 <div class="col-md-6">
                                     <div class="input-group">
@@ -474,36 +300,5 @@
 
         // Gõ Last Name → update slug
         document.querySelector('input[name="last_name"]').addEventListener('input', updateSlug);
-    </script>
-
-    <script>
-        document.querySelector('select[name="school_id"]')
-            ?.addEventListener('change', function() {
-
-                let schoolId = this.value;
-                let classSelect = document.getElementById('class_id');
-
-                classSelect.innerHTML = '<option value="">Loading...</option>';
-
-                if (!schoolId) {
-                    classSelect.innerHTML = '<option value="">-- Select Class --</option>';
-                    return;
-                }
-
-                fetch(`/cpanel/ajax/classes-by-school/${schoolId}`)
-                    .then(res => res.json())
-                    .then(data => {
-                        let html = '<option value="">-- Select Class --</option>';
-
-                        data.forEach(cls => {
-                            html += `<option value="${cls.id}">${cls.name}</option>`;
-                        });
-
-                        classSelect.innerHTML = html;
-                    })
-                    .catch(() => {
-                        classSelect.innerHTML = '<option value="">Error loading classes</option>';
-                    });
-            });
     </script>
 @endsection

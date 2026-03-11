@@ -4,13 +4,13 @@
     <!-- START BREADCRUMB -->
     <ul class="breadcrumb">
         <li><a href="{{ route('cpanel.dashboard') }}">Home</a></li>
-        <li class="active"><a href="{{ route('cpanel.teacher') }}">List</a></li>
+        <li class="active"><a href="{{ route('cpanel.parent') }}">List</a></li>
     </ul>
     <!-- END BREADCRUMB -->
 
     <!-- PAGE TITLE -->
     <div class="page-title">
-        <h2><span class="fa fa-arrow-circle-o-left"></span> Teacher</h2>
+        <h2><span class="fa fa-arrow-circle-o-left"></span> Parent</h2>
     </div>
     <!-- END PAGE TITLE -->
 
@@ -24,16 +24,16 @@
                 <div class="panel panel-default">
 
                     <div class="panel-heading">
-                        <h3 class="panel-title">Teacher Search</h3>
+                        <h3 class="panel-title">Parent Search</h3>
                     </div>
 
                     <div class="panel-body">
-                        <form action="{{ route('cpanel.teacher') }}" method="GET">
+                        <form action="{{ route('cpanel.parent') }}" method="GET">
 
                             <div class="col-md-2">
-                                <label>Teacher Name</label>
+                                <label>Parent Name</label>
                                 <input type="text" class="form-control" name="name" value="{{ request('name') }}"
-                                    placeholder="TEACHER NAME">
+                                    placeholder="PARENT NAME">
                             </div>
 
                             <div class="col-md-2">
@@ -66,7 +66,7 @@
                                 <br>
                                 <div class="col-md-2">
                                     <button type="submit" class="btn btn-primary">Search</button>
-                                    <a href="{{ route('cpanel.teacher') }}" class="btn btn-success">Reset</a>
+                                    <a href="{{ route('cpanel.parent') }}" class="btn btn-success">Reset</a>
                                 </div>
                             </div>
 
@@ -78,8 +78,8 @@
                 <div class="panel panel-default">
 
                     <div class="panel-heading">
-                        <h3 class="panel-title">Teacher List</h3>
-                        <a class="btn btn-primary pull-right" href="{{ route('cpanel.teacher.add') }}">Create teacher</a>
+                        <h3 class="panel-title">Parent List</h3>
+                        <a class="btn btn-primary pull-right" href="{{ route('cpanel.parent.add') }}">Create parent</a>
                     </div>
 
                     <div class="panel-body panel-body-table">
@@ -88,111 +88,90 @@
                             <table class="table table-bordered table-striped table-actions">
                                 <thead>
                                     <tr>
-                                        <th>Full Name</th>
+                                        
                                         @if (Auth::user()->is_admin == 1 || Auth::user()->is_admin == 2)
                                             <th>School Name</th>
                                         @endif
-                                        <th>Qualification</th>
-                                        <th>Profile</th>
+                                        <th width="70">Profile</th>
+                                        <th>Full Name</th>
                                         <th>Email</th>
                                         <th>Phone</th>
                                         <th>Address</th>
-                                        <th>Status</th>
-                                        <th>Role</th>
+                                        <th>Occupation</th>
                                         <th>Gender</th>
-                                        <th>Date of Birth</th>
-                                        <th>Date of Joining</th>
-                                        <th>Actions</th>
+                                        <th>Status</th>
+                                        <th width="120">Actions</th>
                                     </tr>
                                 </thead>
+
                                 <tbody>
-                                    @foreach ($teacherList as $tl)
+                                    @forelse ($parents as $ps)
                                         <tr>
-                                            <td>
-                                                <strong>{{ $tl->name }} {{ $tl->last_name }}</strong>
-                                            </td>
                                             @if (Auth::user()->is_admin == 1 || Auth::user()->is_admin == 2)
                                                 <td>
-                                                    @if (!empty($tl->getCreatedBy))
-                                                        {{ $tl->getCreatedBy->name }}
-                                                    @endif
+                                                    {{ $ps->getCreatedBy->name ?? 'N/A' }}
                                                 </td>
                                             @endif
-                                            <td>{{ $tl->qualification }}</td>
-                                            <td>
-                                                @if (!empty($tl->profile_pic))
-                                                    <img src="{{ asset($tl->profile_pic) }}" alt="Teacher Image"
+                                            {{-- Profile --}}
+                                            <td class="text-center">
+                                                @if (!empty($ps->profile_pic))
+                                                    <img src="{{ asset($ps->profile_pic) }}" alt="Parent Image"
                                                         width="50" height="50"
                                                         style="object-fit: cover; border-radius: 6px;">
                                                 @else
                                                     <span class="text-muted">No Image</span>
                                                 @endif
                                             </td>
-                                            <td>{{ $tl->email }}</td>
+
+                                            {{-- Full Name --}}
                                             <td>
-                                                {{ $tl->phone ?? '-' }}
+                                                <strong>{{ $ps->name }} {{ $ps->last_name }}</strong>
                                             </td>
-                                            <td title="{{ $tl->address }}">
-                                                {{ \Illuminate\Support\Str::limit($tl->address, 30, '...') }}
+
+                                            {{-- Email --}}
+                                            <td>{{ $ps->email }}</td>
+
+                                            {{-- Phone --}}
+                                            <td>{{ $ps->phone ?? '-' }}</td>
+
+                                            {{-- Address --}}
+                                            <td title="{{ $ps->permanent_address }}">
+                                                {{ \Illuminate\Support\Str::limit($ps->permanent_address ?? '-', 30, '...') }}
                                             </td>
+
+                                            {{-- Occupation --}}
+                                            <td>{{ $ps->occupation ?? '-' }}</td>
+
+                                            {{-- Gender --}}
                                             <td>
-                                                @if (auth()->user()->is_admin === 1 || auth()->user()->is_admin === 2 || auth()->user()->is_admin === 3)
-                                                    <a href="{{ route('cpanel.teacher.toggleStatus', $tl->id) }}">
-                                                        @if ($tl->status)
-                                                            <span class="label label-success">Active</span>
-                                                        @else
-                                                            <span class="label label-danger">Inactive</span>
-                                                        @endif
-                                                    </a>
-                                                @else
-                                                    @if ($tl->status)
-                                                        <span class="label label-success">Active</span>
-                                                    @else
-                                                        <span class="label label-danger">Inactive</span>
-                                                    @endif
-                                                @endif
-                                            </td>
-                                            <td>
-                                                @if ($tl->is_admin == 5)
-                                                    <span class="label label-info">Teacher</span>
-                                                @endif
-                                            </td>
-                                            <td>
-                                                @if ($tl->gender === 'male')
+                                                @if ($ps->gender === 'male')
                                                     <span class="label label-primary">Male</span>
-                                                @elseif ($tl->gender === 'female')
+                                                @elseif ($ps->gender === 'female')
                                                     <span class="label label-danger">Female</span>
                                                 @else
                                                     <span class="text-muted">-</span>
                                                 @endif
                                             </td>
+
+                                            {{-- Status --}}
                                             <td>
-                                                {{ $tl->date_of_birth?->format('d-m-Y') ?? '-' }}
-                                            </td>
-                                            <td>
-                                                {{ $tl->date_of_joining?->format('d-m-Y') ?? '-' }}
+                                                @if ($ps->status)
+                                                    <span class="label label-success">Active</span>
+                                                @else
+                                                    <span class="label label-danger">Inactive</span>
+                                                @endif
                                             </td>
 
                                             {{-- Actions --}}
-                                            <td>
-                                                {{-- Edit --}}
-                                                <a href="{{ route('cpanel.teacher.edit', $tl->slug) }}"
+                                            <td class="text-center">
+                                                <a href="{{ route('cpanel.parent.edit', $ps->slug) }}"
                                                     class="btn btn-default btn-rounded btn-sm" title="Edit">
                                                     <span class="fa fa-pencil"></span>
                                                 </a>
-                                                
-                                                {{-- Assign Subject --}}
-                                                @if(Auth::user()->is_admin === 3 || Auth::user()->is_admin === 4 )
-                                                    <a href="{{ route('teacher.assign.subject', $tl->slug) }}"
-                                                        class="btn btn-info btn-rounded btn-sm" title="Phân công giảng dạy">
-                                                        <span class="fa fa-book"></span>
-                                                    </a>
-                                                @endif
 
-                                                {{-- Delete --}}
-                                                <form action="{{ route('cpanel.teacher.delete', $tl->slug) }}"
+                                                <form action="{{ route('cpanel.parent.delete', $ps->slug) }}"
                                                     method="POST" style="display:inline-block"
-                                                    onsubmit="return confirm('Are you sure you want to delete this teacher?');">
+                                                    onsubmit="return confirm('Are you sure you want to delete this parent?');">
                                                     @csrf
                                                     @method('DELETE')
 
@@ -200,18 +179,27 @@
                                                         <span class="fa fa-times"></span>
                                                     </button>
                                                 </form>
+
+                                                <a href="{{ route('cpanel.parent.my.student', $ps->slug) }}"
+                                                    class="btn btn-primary btn-rounded btn-sm" title="My Student">
+                                                    My Student
+                                                </a>
                                             </td>
                                         </tr>
-                                    @endforeach
+                                    @empty
+                                        <tr>
+                                            <td colspan="9" class="text-center text-muted">
+                                                No Parent Found
+                                            </td>
+                                        </tr>
+                                    @endforelse
                                 </tbody>
-
                             </table>
-
                         </div>
                     </div>
                 </div>
                 <div class="pull-right">
-                    {{ $teacherList->links() }}
+                    {{ $parents->links() }}
                 </div>
             </div>
         </div>

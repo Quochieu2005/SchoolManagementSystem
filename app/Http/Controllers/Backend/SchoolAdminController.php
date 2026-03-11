@@ -21,8 +21,14 @@ class SchoolAdminController extends Controller
     }
     public function admin_school_list(Request $request)
     {
-        $query = User::where('is_admin', 4);
+        $query = User::where('is_admin', 4); // School Admin
 
+        // 🔒 LỌC THEO TRƯỜNG
+        if (Auth::user()->is_admin == 3) {
+            $query->where('created_by_id', Auth::id());
+        }
+
+        // ===== SEARCH =====
         if ($request->filled('name')) {
             $query->where(function ($q) use ($request) {
                 $q->where('name', 'like', '%' . $request->name . '%')
@@ -35,28 +41,30 @@ class SchoolAdminController extends Controller
         }
 
         if ($request->filled('gender')) {
-            $query->where('gender', 'like', '%' . $request->gender . '%');
+            $query->where('gender', $request->gender);
         }
 
         if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
+
         $schooladmin = $query
             ->orderBy('id', 'desc')
             ->paginate(10)
             ->appends($request->query());
+
         $meta_title = "School Admin List";
-        return view('backend.school_admin.index' , compact('meta_title' , 'schooladmin'));
+        return view('backend.school_admin.index', compact('meta_title', 'schooladmin'));
     }
 
     public function school_admin_create()
     {
-        $schooladmin = User::where('is_admin' , 3)
-                        ->where('status' , 1)
-                        ->where('trang_thai' , 1)
-                        ->get();
+        $schooladmin = User::where('is_admin', 3)
+            ->where('status', 1)
+            ->where('trang_thai', 1)
+            ->get();
         $meta_title = "Create School Admin";
-        return view('backend.school_admin.create' , compact('meta_title' , 'schooladmin'));
+        return view('backend.school_admin.create', compact('meta_title', 'schooladmin'));
     }
 
     public function school_admin_store(Request $request)
@@ -95,14 +103,11 @@ class SchoolAdminController extends Controller
             $user->address       = $request->address;
             $user->status        = $request->status;
             $user->is_admin      = 4;
-            if(Auth::user()->is_admin == 1 || Auth::user()->is_admin == 2)
-                {
-                    $user->created_by_id = $request->school_id;
-                }
-            else
-                {
-                    $user->created_by_id = Auth::id();
-                }
+            if (Auth::user()->is_admin == 1 || Auth::user()->is_admin == 2) {
+                $user->created_by_id = $request->school_id;
+            } else {
+                $user->created_by_id = Auth::id();
+            }
             $user->save();
 
             // Upload ảnh
@@ -143,14 +148,14 @@ class SchoolAdminController extends Controller
             ->where('trang_thai', 1)
             ->get();
         $meta_title = "School Admin Edit";
-        return view('backend.school_admin.edit', compact('schooladmin', 'meta_title' , 'schools'));
+        return view('backend.school_admin.edit', compact('schooladmin', 'meta_title', 'schools'));
     }
 
-    public function school_admin_update(Request $request , $slug)
+    public function school_admin_update(Request $request, $slug)
     {
         $user = User::where('slug', $slug)->firstOrFail();
 
-        if(Auth::user()->is_admin == 1 || Auth::user()->is_admin == 2) {
+        if (Auth::user()->is_admin == 1 || Auth::user()->is_admin == 2) {
             $request->validate([
                 'school_id' => 'required|exists:users,id',
             ]);
@@ -190,9 +195,9 @@ class SchoolAdminController extends Controller
             $user->address = $request->address;
             $user->status  = $request->status;
 
-            if(Auth::user()->is_admin == 1 || Auth::user()->is_admin == 2) {
-                    $user->created_by_id = $request->school_id;
-                }
+            if (Auth::user()->is_admin == 1 || Auth::user()->is_admin == 2) {
+                $user->created_by_id = $request->school_id;
+            }
 
             if ($request->filled('password')) {
                 $user->password = bcrypt($request->password);
