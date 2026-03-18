@@ -194,9 +194,24 @@
                 </div>
             </div>
         </li>
-        <li class="{{ Request::segment(2) == 'dashboard' ? 'active' : '' }}">
-            <a href="{{ route('cpanel.dashboard') }}"><span class="fa fa-desktop"></span><span class="xn-text">Dashboard</span></a>
-        </li>
+        
+        @if(Auth::user()->is_admin == 1 || Auth::user()->is_admin == 2 ||  Auth::user()->is_admin == 3)
+            <li class="{{ Request::segment(2) == 'dashboard' ? 'active' : '' }}">
+                <a href="{{ route('cpanel.dashboard') }}"><span class="fa fa-desktop"></span><span class="xn-text">Dashboard</span></a>
+            </li>
+        @elseif(Auth::user()->is_admin == 5)
+            <li class="{{ Request::segment(2) == 'teacher' ? 'active' : '' }}">
+                <a href="{{ route('teacher.dashboard') }}"><span class="fa fa-desktop"></span><span class="xn-text">Dashboard</span></a>
+            </li>
+        @elseif(Auth::user()->is_admin == 6)
+            <li class="{{ Request::segment(2) == 'student' ? 'active' : '' }}">
+                <a href="{{ route('student.dashboard') }}"><span class="fa fa-desktop"></span><span class="xn-text">Dashboard</span></a>
+            </li>
+        @elseif(Auth::user()->is_admin == 7)
+             <li class="{{ Request::segment(2) == 'parent' ? 'active' : '' }}">    
+                <a href="{{ route('parent.dashboard') }}"><span class="fa fa-desktop"></span> <span class="xn-text">Dashboard</span></a>
+            </li>
+        @endif
 
         @if (Auth::user()->is_admin == 1 || Auth::user()->is_admin == 2)
             <li class="{{ Request::segment(2) == 'admin' ? 'active' : '' }}">    
@@ -238,6 +253,14 @@
                 </ul>
             </li>
         @endif
+
+        <li class="{{ Request::segment(2) == 'my-account' ? 'active' : '' }}">    
+            <a href="{{ route('cpanel.my.account') }}"><span class="fa fa-user-circle"></span> <span class="xn-text">My Account</span></a>
+        </li>
+
+        <li class="{{ Request::segment(2) == 'change-password' ? 'active' : '' }}">    
+            <a href="{{ route('cpanel.change.password') }}"><span class="fa fa-key"></span> <span class="xn-text">Change Password</span></a>
+        </li>
 
         <li class="xn-openable"> 
             <a href="#"><span class="fa fa-file-text-o"></span> <span class="xn-text">Layouts</span></a>

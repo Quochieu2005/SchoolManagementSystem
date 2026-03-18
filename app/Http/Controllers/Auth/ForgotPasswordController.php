@@ -32,7 +32,6 @@ class ForgotPasswordController extends Controller
             'email' => 'required|email',
         ]);
 
-        // 1️⃣ Kiểm tra email có tồn tại
         $user = User::where('email', $request->email)->first();
 
         if (!$user) {
@@ -44,7 +43,6 @@ class ForgotPasswordController extends Controller
         }
 
         try {
-            // 2️⃣ Tạo token
             $token = Str::random(64);
 
             DB::table('password_reset_tokens')->updateOrInsert(
@@ -55,20 +53,17 @@ class ForgotPasswordController extends Controller
                 ]
             );
 
-            // 3️⃣ Link reset (CHUẨN: token + email)
             $resetLink = route('password.reset', [
                 'token' => $token,
                 'email' => $user->email,
             ]);
 
-            // 4️⃣ Gửi mail
             Mail::to($user->email)->send(
                 new ResetPasswordMail($resetLink)
             );
 
             return back()->with('success', 'Link reset mật khẩu đã được gửi về email.');
         } catch (Throwable $e) {
-            // Log để dev xem, user không thấy 500
             logger()->error('Reset password mail error', [
                 'email' => $request->email,
                 'message' => $e->getMessage(),
@@ -105,26 +100,22 @@ class ForgotPasswordController extends Controller
             ->where('email', $request->email)
             ->first();
 
-        // Token không tồn tại hoặc sai
         if (!$record || !Hash::check($request->token, $record->token)) {
             return back()->withErrors([
                 'email' => 'Link reset không hợp lệ.'
             ]);
         }
 
-        // ⏱ TOKEN HẾT HẠN SAU 1 PHÚT
         if (Carbon::parse($record->created_at)->addMinute()->isPast()) {
             return back()->withErrors([
                 'email' => 'Link reset đã hết hạn (quá 1 phút).'
             ]);
         }
 
-        // Cập nhật mật khẩu mới
         User::where('email', $request->email)->update([
             'password' => Hash::make($request->password),
         ]);
 
-        // Xóa token (chỉ dùng 1 lần)
         DB::table('password_reset_tokens')
             ->where('email', $request->email)
             ->delete();

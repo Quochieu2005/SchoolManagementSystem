@@ -1,10 +1,12 @@
 <?php
 
+use Illuminate\Support\Facades\Route;
+
 use App\Http\Controllers\Backend\ParentController;
 use App\Http\Controllers\Backend\SchoolAdminController;
 use App\Http\Controllers\Backend\SubjectController;
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\Auth\UserController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Backend\DashboardController;
 use App\Http\Controllers\Backend\SchoolController;
@@ -19,23 +21,24 @@ Route::post('/', [AuthController::class, 'post_login'])->name('post.login');
 Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // FORGOT PASSWORD
-Route::get('/forgot-password', [ForgotPasswordController::class, 'showForgotForm'])
-    ->name('password.request');
-
-Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLink'])
-    ->name('password.email');
-
-Route::get('/reset-password/{token}', [ForgotPasswordController::class, 'showResetForm'])
-    ->name('password.reset');
-
-Route::post('/reset-password', [ForgotPasswordController::class, 'resetPassword'])
-    ->name('password.update');
+Route::get('/forgot-password', [ForgotPasswordController::class, 'showForgotForm'])->name('password.request');
+Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLink'])->name('password.email');
+Route::get('/reset-password/{token}', [ForgotPasswordController::class, 'showResetForm'])->name('password.reset');
+Route::post('/reset-password', [ForgotPasswordController::class, 'resetPassword'])->name('password.update');
 
 // BACKEND (CPANEL)
 Route::middleware(['auth', 'common'])->group(function () {
 
     // Dashboard
     Route::get('/cpanel/dashboard', [DashboardController::class, 'dashboard'])->name('cpanel.dashboard');
+
+    // CHANGE PASSWORD
+    Route::get('/cpanel/change-password' , [UserController::class , 'change_password'])->name('cpanel.change.password');
+    Route::post('/cpanel/change-password' , [UserController::class , 'update_password'])->name('cpanel.update.password');
+
+    // MY ACCOUNT
+    Route::get('/cpanel/my-account' , [UserController::class , 'my_account'])->name('cpanel.my.account');
+    Route::post('/cpanel/my-account' , [UserController::class , 'update_account'])->name('cpanel.update.my.account');
 
     Route::fallback(function () {
         return response()->view('errors.404', [], 404);
@@ -128,18 +131,18 @@ Route::group(['middleware' => 'school'], function () {
 
 Route::group(['middleware' => 'teacher'], function () {
 
-    Route::get('/teacher/dashboard', [DashboardController::class, 'dashboard'])->name('cpanel.dashboard');
+    Route::get('/teacher/dashboard', [DashboardController::class, 'dashboard'])->name('teacher.dashboard');
 
 });
 
 Route::group(['middleware' => 'student'], function () {
 
-    Route::get('/student/dashboard', [DashboardController::class, 'dashboard'])->name('cpanel.dashboard');
+    Route::get('/student/dashboard', [DashboardController::class, 'dashboard'])->name('student.dashboard');
 
 });
 
 Route::group(['middleware' => 'parent'], function () {
 
-    Route::get('/parent/dashboard', [DashboardController::class, 'dashboard'])->name('cpanel.dashboard');
+    Route::get('/parent/dashboard', [DashboardController::class, 'dashboard'])->name('parent.dashboard');
 
 });
