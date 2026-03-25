@@ -36,4 +36,5 @@ class SchoolClass extends Model
             'teacher_id'
         )->withPivot('subject_id')->withTimestamps();
     }
+    
 }
