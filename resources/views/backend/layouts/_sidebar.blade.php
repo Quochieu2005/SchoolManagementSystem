@@ -243,7 +243,7 @@
         @endif
 
         @if(Auth::user()->is_admin == 3)
-            <li class="xn-openable {{ Request::segment(2) == 'class' || Request::segment(2) == 'subject' || Request::segment(2) == 'assign-subject'  ? 'active' : '' }}"> 
+            <li class="xn-openable {{ Request::segment(2) == 'class' || Request::segment(2) == 'subject' || Request::segment(2) == 'assign-subject' || Request::segment(2) == 'class-timetable' ? 'active' : '' }}"> 
                 <a href="#"><span class="fa fa-file-text-o"></span> <span class="xn-text">Academics</span></a>
                 <ul>
                     <li class="{{ Request::segment(2) == 'class' ? 'active' : '' }}"><a href="{{ route('cpanel.class') }}"><span class="fa fa-random"></span> Class</a></li>
@@ -251,6 +251,8 @@
                     <li class="{{ Request::segment(2) == 'subject' ? 'active' : '' }}"><a href="{{ route('cpanel.subject') }}"><span class="fa fa-random"></span> Subject</a></li>
 
                     <li class="{{ Request::segment(2) == 'assign-subject' ? 'active' : '' }}"><a href="{{ route('cpanel.assign.subject') }}"><span class="fa fa-random"></span> Assign Subject</a></li>
+
+                    <li class="{{ Request::segment(2) == 'class-timetable' ? 'active' : '' }}"><a href="{{ route('cpanel.class.timetable') }}"><span class="fa fa-random"></span> Class Timetable</a></li>
 
                 </ul>
             </li>

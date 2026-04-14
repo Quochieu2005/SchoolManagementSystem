@@ -114,7 +114,7 @@ Route::group(['middleware' => 'school'], function () {
     Route::get('/cpanel/class', [ClassController::class, 'class_list'])->name('cpanel.class');
     Route::get('/cpanel/class/add', [ClassController::class, 'class_create'])->name('cpanel.class.add');
     Route::post('/cpanel/class/store', [ClassController::class, 'store'])->name('cpanel.class.store');
-    Route::get('/cpanel/class/{class:slgu}/edit', [ClassController::class, 'edit_class'])->name('cpanel.class.edit');
+    Route::get('/cpanel/class/{class:slug}/edit', [ClassController::class, 'edit_class'])->name('cpanel.class.edit');
     Route::put('/cpanel/class/{class:slug}', [ClassController::class, 'update'])->name('cpanel.class.update');
     Route::get('/cpanel/class/{id}/toggle-status', [ClassController::class, 'toggleStatus'])->name('cpanel.class.toggleStatus');
     Route::delete('/cpanel/class/{class:slug}', [ClassController::class, 'destroy'])->name('cpanel.class.delete');
@@ -135,6 +135,12 @@ Route::group(['middleware' => 'school'], function () {
     Route::get('/cpanel/assign-subject/{assign}/edit', [SubjectController::class, 'edit'])->name('cpanel.assign.subject.edit');
     Route::put('/cpanel/assign-subject/{assign}', [SubjectController::class, 'update_assign'])->name('cpanel.assign.subject.update');
     Route::delete('/cpanel/assign-subject/{assign}', [SubjectController::class, 'destroy_assign'])->name('cpanel.assign.subject.delete');
+
+    // Class timetable
+    Route::get('/cpanel/class-timetable', [SubjectController::class, 'class_timetable'])->name('cpanel.class.timetable');
+    Route::post('/cpanel/class-timetable', [SubjectController::class, 'save_class_timetable'])->name('cpanel.class.timetable.save');
+    Route::get('get-subjects-by-class', [SubjectController::class, 'getSubjectsByClass']);
+
 });
 
 Route::group(['middleware' => 'teacher'], function () {
